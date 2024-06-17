@@ -67,5 +67,34 @@ class TestArena(unittest.TestCase):
   
     # 可能还需要其他测试，例如测试非法战斗（不在竞技场中的战斗者）等  
   
+
+class TestCombatant(unittest.TestCase):  
+  
+    def setUp(self):  
+        # 在每个测试方法之前都会调用setUp方法，用于设置测试环境  
+        self.player = Combatant("Player", 100, 20, 10)  
+        self.enemy = Combatant("Enemy", 80, 15, 15)  
+  
+    def test_attack(self):  
+        # 测试攻击时，伤害计算是否正确  
+        self.player.attack(self.enemy)  
+        expected_damage = 20 - 15  # 玩家力量 - 敌人防御  
+        self.assertEqual(self.enemy.health, 80 - expected_damage)  
+  
+        # 测试攻击时，如果伤害小于等于0，则不造成伤害  
+        weak_enemy = Combatant("Weak Enemy", 50, 5, 20)  
+        self.player.attack(weak_enemy)  
+        self.assertEqual(weak_enemy.health, 50)  
+  
+    def test_take_damage(self):  
+        # 测试受到伤害时，生命值减少是否正确  
+        self.enemy.take_damage(20)  
+        self.assertEqual(self.enemy.health, 60)  
+  
+        # 测试当生命值减少到0或以下时，是否变为0并打印消息  
+        self.enemy.take_damage(60)  
+        self.assertEqual(self.enemy.health, 0)
+
+        
 if __name__ == '__main__':  
     unittest.main()
