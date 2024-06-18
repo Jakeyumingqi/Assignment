@@ -1,3 +1,5 @@
+# My name is Yumingqi 
+# My student ID is 2118040233
 import unittest
 from Assignment2 import Field
 from Assignment2 import Arena  # 假设Arena类定义在arena.py文件中  

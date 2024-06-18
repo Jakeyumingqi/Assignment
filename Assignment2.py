@@ -1,3 +1,6 @@
+# My name is Yumingqi
+# My student ID is 2118040233
+
 import random
 
 class Field:
