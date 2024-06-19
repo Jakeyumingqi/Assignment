@@ -97,6 +97,9 @@ class TestCombatant(unittest.TestCase):
         self.enemy.take_damage(60)  
         self.assertEqual(self.enemy.health, 0)
 
+    def test_take_damage(self):
+        
+
         
 if __name__ == '__main__':  
     unittest.main()
