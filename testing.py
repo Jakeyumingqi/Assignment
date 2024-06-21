@@ -1,3 +1,5 @@
+# My name is Yumingqi
+# the Student Id is 2118040233
 import unittest
 from Assignment2 import Field
 from Assignment2 import Arena   
