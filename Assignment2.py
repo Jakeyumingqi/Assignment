@@ -93,3 +93,27 @@ class Combatant:
     def details(self):
         return f"{self.name}: Health={self.health}, Strength={self.strength}, Defense={self.defense}"
 
+class Ranger(Combatant):
+    def __init__(self, name, max_health, strength, defense, range_level):
+        super().__init__(name, max_health, strength, defense)
+        self.range_level = range_level
+        self.arrows = 3
+
+    def attack(self, opponent):
+        if self.arrows > 0:
+            damage = self.range_level
+            self.arrows -= 1
+            print(f"{self.name} fires an arrow at {opponent.name}")
+        else:
+            damage = self.strength
+            print(f"{self.name} attacks {opponent.name} with melee")
+
+        damage -= opponent.defense
+        if damage > 0:
+            opponent.take_damage(damage)
+        else:
+            print(f"{self.name} couldn't damage {opponent.name}")
+
+    def reset(self):
+        super().reset()
+        self.arrows = 3

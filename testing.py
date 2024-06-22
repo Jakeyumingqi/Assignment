@@ -9,7 +9,7 @@ from Assignment2 import Warrior
 
 class TestField(unittest.TestCase):  
     def setUp(self):  
-        # 在每个测试方法运行前创建Field对象  
+      
         self.field = Field('Test Field')  
   
     def test_change_field_returns_valid_type(self):  
@@ -104,13 +104,11 @@ class TestCombatant(unittest.TestCase):
         self.enemy.health = 10  
         self.enemy.heal(30)  
         self.assertEqual(self.enemy.health, 40)  
-  
-        # 测试当治疗超过最大生命值时，生命值是否变为最大生命值  
+    
         self.enemy.heal(100)  
         self.assertEqual(self.enemy.health, 80)  
   
     def test_reset(self):  
-        # 测试重置时，生命值是否恢复为最大生命值  
         self.enemy.health = 20  
         self.enemy.reset()  
         self.assertEqual(self.enemy.health, 80)  
