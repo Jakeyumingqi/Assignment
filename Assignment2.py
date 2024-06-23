@@ -117,3 +117,65 @@ class Ranger(Combatant):
     def reset(self):
         super().reset()
         self.arrows = 3
+
+class Warrior(Combatant):
+    def __init__(self, name, max_health, strength, defense, armor_value):
+        super().__init__(name, max_health, strength, defense)
+        self.armor_value = armor_value
+
+    def take_damage(self, damage):
+        reduced_damage = damage - self.armor_value
+        if reduced_damage > 0:
+            super().take_damage(reduced_damage)
+            self.armor_value -= 5
+            if self.armor_value < 0:
+                self.armor_value = 0
+                print(f"{self.name}'s armor has shattered!")
+        else:
+            print(f"{self.name}'s armor absorbed the damage!")
+
+    def reset(self):
+        super().reset()
+        self.armor_value = 10
+
+class Mage(Combatant):
+    def __init__(self, name, max_health, strength, defense, magic_level):
+        super().__init__(name, max_health, strength, defense)
+        self.magic_level = magic_level
+
+    def attack(self, opponent):
+        raise NotImplementedError("Mages must be specialized!")
+
+class PyroMage(Mage):
+    def __init__(self, name, max_health, strength, defense, magic_level):
+        super().__init__(name, max_health, strength, defense, magic_level)
+        self.flame_boost = 1
+        self.mana = magic_level
+        self.regen_rate = magic_level // 4
+
+    def attack(self, opponent):
+        if self.mana >= 40:
+            self.mana -= 40
+            self.flame_boost += 1
+            print(f"{self.name} casts SuperHeat")
+        elif self.mana >= 10:
+            self.mana -= 10
+            print(f"{self.name} casts FireBlast")
+
+        self.mana += self.regen_rate
+        damage = (self.strength * self.flame_boost) + 10 - opponent.defense
+        if damage > 0:
+            opponent.take_damage(damage)
+        else:
+            print(f"{self.name} couldn't damage {opponent.name}")
+
+    def reset(self):
+        super().reset()
+        self.mana = self.magic_level
+
+class FrostMage(Mage):
+    def __init__(self, name, max_health, strength, defense, magic_level):
+        super().__init__(name, max_health, strength, defense, magic_level)
+        self.ice_block = False
+        self.mana = magic_level
+        self.regen_rate = magic_level // 4
