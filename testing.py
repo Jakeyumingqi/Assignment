@@ -10,7 +10,7 @@ from Assignment2  import Ranger
 from Assignment2 import Warrior
 from Assignment2 import Mage
 from Assignment2 import PyroMage
-from Assignment2 import FrostMAGE
+from Assignment2 import FrostMage
 from Assignment2 import Dharok
 from Assignment2 import Guthans
 from Assignment2 import Karil
@@ -33,15 +33,15 @@ class TestArena(unittest.TestCase):
         self.arena = Arena("Test Arena")  
         self.combatant1 = Combatant("Combatant 1")  
         self.combatant2 = Combatant("Combatant 2")  
-        self.arena.add_combatant(self.combatant1)  
-        self.arena.add_combatant(self.combatant2)  
+        self.arena.addCombatant(self.combatant1)  
+        self.arena.addCombatant(self.combatant2)  
   
     def test_add_combatant(self):  
         self.assertIn(self.combatant1, self.arena.combatants)  
         self.assertIn(self.combatant2, self.arena.combatants)  
   
     def test_remove_combatant(self):  
-        self.arena.remove_combatant(self.combatant1)  
+        self.arena.removeCombatant(self.combatant1)  
         self.assertNotIn(self.combatant1, self.arena.combatants)  
         self.assertIn(self.combatant2, self.arena.combatants)  
   
@@ -129,7 +129,7 @@ class TestRanger(unittest.TestCase):
         self.ranger.reset()  
         self.assertEqual(self.ranger.arrows, 3)  
 
-class Warrior(unittest.TestCase):
+class TestWarrior(unittest.TestCase):
     def setUp(self):
         self.warrior= Warrior("Test Warrior", 100, 10, 5, 10)  
     def test_take_damage_with_armor(self):
@@ -148,7 +148,24 @@ class Warrior(unittest.TestCase):
         self.warrior.take_damage(20) 
         self.warrior.reset()
         self.assertEqual(self.warrior.health, 100)
-        self.assertEqual(self.warrior.armor_value, 10)
+        self.assertEqual(self.warrior.armor_value, 5)
+
+class TestMage(unittest.TestCase):
+    def setUp(self):
+        self.mage=Mage("Test Mage",100,5,20,15)
+    def tset_attack(self):
+        self.assertEqual(self.mage.max_health,100)
+        self.assertEqual(self.mage.strength,5)
+
+    def test_mage_attack_raises_not_implemented_error(self):  
+        mage = Mage('Merlin', 100, 5, 10, 20) 
+        class MockCombatant:  
+            pass  
+        opponent = MockCombatant()
+        with self.assertRaises(NotImplementedError) as context:  
+            mage.attack(opponent)  
+        self.assertEqual(str(context.exception), "Mages must be specialized!")  
+
         
 
 if __name__ == '__main__':  

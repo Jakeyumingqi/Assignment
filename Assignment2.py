@@ -18,19 +18,22 @@ class Arena:
         self.field = Field(name)
         self.combatants = []
 
-    def add_combatant(self, combatant):
+    def addCombatant(self, combatant):
         if combatant not in self.combatants:
             self.combatants.append(combatant)
+        print(f"{combatant.name} was added to {self.name}")
 
-    def remove_combatant(self, combatant):
+    def removeCombatant(self, combatant):
         if combatant in self.combatants:
             self.combatants.remove(combatant)
+        print(f"{combatant.name} was removed from {self.name}")
+        
 
-    def list_combatants(self):
+    def listCombatants(self):
         for combatant in self.combatants:
             print(combatant.details())
 
-    def restore_combatants(self):
+    def restoreCombatants(self):
         for combatant in self.combatants:
             combatant.reset()
 
@@ -50,7 +53,7 @@ class Arena:
             rounds += 1
 
         print(f"After {rounds} rounds, the duel ended.")
-        self.list_combatants()
+        self.listCombatants()
 
     def field_effects(self, combatant1, combatant2):
         if self.field.type == "Toxic Wasteland":
@@ -91,7 +94,7 @@ class Combatant:
         self.health = self.max_health
 
     def details(self):
-        return f"{self.name}: Health={self.health}, Strength={self.strength}, Defense={self.defense}"
+        return f"{self.name} is a {self.__class__.__name__} and has the following stats:\n Health={self.health} \n Strength={self.strength}\n Defense={self.defense}"
 
 class Ranger(Combatant):
     def __init__(self, name, max_health, strength, defense, range_level):
@@ -179,3 +182,96 @@ class FrostMage(Mage):
         self.ice_block = False
         self.mana = magic_level
         self.regen_rate = magic_level // 4
+    def attack(self, opponent):
+        if self.mana >= 50:
+            self.mana -= 50
+            self.ice_block = True
+            print(f"{self.name} casts Ice Block!")
+        elif self.mana >= 10:
+            self.mana -= 10
+            print(f"{self.name} casts Ice Barrage!")
+
+        self.mana += self.regen_rate
+        damage = (self.magic_level // 4) + 30 - opponent.defense
+        if damage > 0 and not self.ice_block:
+            opponent.take_damage(damage)
+        else:
+            self.ice_block = False
+            print(f"{self.name}'s IceBlock absorbed the damage")
+
+    def reset(self):
+        super().reset()
+        self.mana = self.magic_level
+        self.ice_block = False
+
+class Dharok(Warrior):
+    def attack(self, opponent):
+        damage = self.strength + (self.max_health - self.health) - opponent.defense
+        if damage > 0:
+            opponent.take_damage(damage)
+        else:
+            print(f"{self.name} couldn't damage {opponent.name}")
+
+class Guthans(Warrior):
+    def attack(self, opponent):
+        damage = self.strength - opponent.defense
+        if damage > 0:
+            opponent.take_damage(damage)
+            self.heal(self.strength // 5)
+        else:
+            print(f"{self.name} couldn't damage {opponent.name}")
+
+class Karil(Warrior):
+    def __init__(self, name, max_health, strength, defense, armor_value, range_level):
+        super().__init__(name, max_health, strength, defense, armor_value)
+        self.range_level = range_level
+
+    def attack(self, opponent):
+        damage = self.strength + self.range_level - opponent.defense
+        if damage > 0:
+            opponent.take_damage(damage)
+        else:
+            print(f"{self.name} couldn't damage {opponent.name}")
+
+# 示例数据设置
+tim = Ranger("Tim", 99, 10, 10, 50)  # 游侠数据
+jay = Warrior("Jay", 99, 1, 99, 10)  # 战士数据
+kevin = Dharok("Kevin", 99, 45, 25, 10)  # Dharok数据
+zac = Guthans("Zac", 99, 45, 30, 10)  # Guthans数据
+jeff = Karil("Jeff", 99, 50, 40, 10, 5)  # Karil数据
+jaina = FrostMage("Jaina", 99, 10, 20, 94)  # FrostMage数据
+zezima = PyroMage("Zezima", 99, 15, 20, 70)  # PyroMage数据
+
+# 创建竞技场并添加战斗单位
+falador = Arena("Falador")
+falador.addCombatant(tim)
+falador.addCombatant(jeff)
+falador.listCombatants()
+
+# 战斗示例
+falador.duel(tim, jeff)
+falador.duel(jeff,zezima)
+
+falador.listCombatants()
+falador.restoreCombatants()
+falador.listCombatants()
+
+falador.removeCombatant(jeff)
+falador.removeCombatant(jeff)
+
+varrock =Arena("Varrock")
+varrock.addCombatant(kevin)
+varrock.addCombatant(zac)
+varrock.duel(kevin,zac)
+
+wilderness = Arena("Wilderness")
+wilderness.addCombatant(jaina)
+wilderness.addCombatant(zezima)
+wilderness.duel(jaina,zezima)
+
+lumbridge = Arena("Lumbridge")
+lumbridge.addCombatant(jaina)
+lumbridge.addCombatant(jay)
+lumbridge.addCombatant(tim)
+lumbridge.duel(jaina, jay)
+lumbridge.duel(jay, tim)
