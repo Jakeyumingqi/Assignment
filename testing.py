@@ -15,6 +15,9 @@ from Assignment2 import Dharok
 from Assignment2 import Guthans
 from Assignment2 import Karil
 
+import io  
+import contextlib  
+
 class TestField(unittest.TestCase):  
     def setUp(self):  
         self.field = Field('Test Field')  
@@ -153,6 +156,7 @@ class TestWarrior(unittest.TestCase):
 class TestMage(unittest.TestCase):
     def setUp(self):
         self.mage=Mage("Test Mage",100,5,20,15)
+
     def tset_attack(self):
         self.assertEqual(self.mage.max_health,100)
         self.assertEqual(self.mage.strength,5)
@@ -166,7 +170,136 @@ class TestMage(unittest.TestCase):
             mage.attack(opponent)  
         self.assertEqual(str(context.exception), "Mages must be specialized!")  
 
+class TestPyroMage(unittest.TestCase):
+    def setUp(self):
+        self.pyroMage = PyroMage("PyroMage",100,20,5,80)
+        self.opponent = Mage("Enemy", 100, 15, 10, 0)
+        self.pyromage.attack(self.opponent)  
+    def test_attack_with_sufficient_mana_for_superheat(self):
+        self.assertEqual(self.pyromage.mana, 40)  
+        self.assertEqual(self.pyromage.flame_boost, 2)    
+        self.assertLess(self.opponent.health, 100) 
+    
+    def test_attack_with_sufficient_mana_for_fireblast(self):
+        self.pyromage.mana = 15  
+        self.pyromage.attack(self.opponent)  
+        self.assertEqual(self.pyromage.mana, 5) 
+        self.assertEqual(self.pyromage.flame_boost, 1)  
+        self.assertLess(self.opponent.health, 100) 
+
+    def test_attack_with_insufficient_mana(self):
+        self.pyromage.mana = 5  
+        self.pyromage.attack(self.opponent)  
+        self.assertEqual(self.pyromage.mana, 9)   
+        self.assertEqual(self.pyromage.flame_boost, 1)  
+        self.assertEqual(self.opponent.health, 100)  
+    
+    def test_reset(self):
+        self.assertEqual(self.pyroMage.health,self.pyroMage.max_health)
+        self.assertEqual(self.pyromage.mana, 80)
+
+class TestFrostMage(unittest.TestCase):
+    
+    def setUp(self):
+        self.mage = FrostMage("Icicle", max_health=100, strength=10, defense=5, magic_level=50)
+    
+    def test_attack_with_enough_mana(self):
+        opponent = Mage("Enemy", max_health=100, strength=10, defense=5, magic_level=50)
+        self.mage.mana = 50
+        self.mage.attack(opponent)
+        self.assertTrue(self.mage.ice_block)
+        self.assertEqual(self.mage.mana, 0)  
         
+    def test_attack_with_insufficient_mana(self):
+        opponent = Mage("Enemy", max_health=100, strength=10, defense=5, magic_level=50)
+        self.mage.mana = 9
+        self.mage.attack(opponent)
+        self.assertFalse(self.mage.ice_block)
+        self.assertEqual(self.mage.mana, 12)  
+        
+    def test_attack_with_ice_block_active(self):
+        opponent = Mage("Enemy", max_health=100, strength=10, defense=5, magic_level=50)
+        self.mage.ice_block = True
+        self.mage.attack(opponent)
+        self.assertTrue(self.mage.ice_block)
+        self.assertEqual(self.mage.mana, 12)  
+    
+    def test_reset_method(self):
+        self.mage.mana = 30
+        self.mage.ice_block = True
+        self.mage.reset()
+        self.assertEqual(self.mage.mana, 50)  
+        self.assertFalse(self.mage.ice_block)
+
+class TestDharok(unittest.TestCase):  
+    def setUp(self):    
+        self.dharok = Dharok("Dharok", 100, 20, 5)  
+        self.opponent = Warrior("Enemy", 100, 15, 10)  
+  
+    def test_attack_with_positive_damage(self):   
+        self.dharok.attack(self.opponent)  
+        expected_damage  = 10  
+        self.assertEqual(self.opponent.health, 100 - expected_damage)  
+  
+    def test_attack_with_negative_damage(self):    
+        self.dharok.health = 50  
+        with self.assertLogs(level='INFO') as cm:  
+            self.dharok.attack(self.opponent)  
+            self.assertIn(f"Dharok couldn't damage Enemy", cm.output)  
+        self.assertEqual(self.opponent.health, 100)  
+  
+    def test_attack_with_zero_damage(self):  
+        self.dharok.health = 90  
+        self.opponent.defense = 15  
+        with self.assertLogs(level='INFO') as cm:  
+            self.dharok.attack(self.opponent)  
+            self.assertIn(f"Dharok couldn't damage Enemy", cm.output)  
+        self.assertEqual(self.opponent.health, 100)
+
+class TestGuthans(unittest.TestCase):  
+    def setUp(self):    
+        self.guthans = Guthans("Guthans", 50)  
+        self.opponent = Warrior("Enemy", 30)  
+        self.opponent.defense = 20   
+  
+    def test_attack_and_heal(self):  
+        initial_guthans_health = self.guthans.health  
+        initial_opponent_health = self.opponent.health  
+
+        self.guthans.attack(self.opponent)   
+        self.assertLess(self.opponent.health, initial_opponent_health)  
+        self.assertGreater(self.guthans.health, initial_guthans_health)  
+  
+    def test_attack_no_damage(self):  
+        strong_opponent = Warrior("Strong Enemy", 50)  
+        strong_opponent.defense = 50  
+        initial_guthans_health = self.guthans.health  
+        self.guthans.attack(strong_opponent)   
+        self.assertEqual(self.guthans.health, initial_guthans_health)       
+
+class TestKaril(unittest.TestCase):  
+    def setUp(self):  
+        self.karil = Karil("Karil", 100, 50, 10, 5, 15)  
+        self.opponent = Warrior("Enemy", 100, 30, 20, 0)  
+  
+    def test_attack_causes_damage(self):  
+        
+        initial_opponent_health = self.opponent.health  
+        self.karil.attack(self.opponent)  
+        self.assertLess(self.opponent.health, initial_opponent_health)  
+  
+    def test_attack_no_damage(self):
+        strong_opponent = Warrior("Strong Enemy", 100, 30, 45, 0)  
+        initial_opponent_health = strong_opponent.health  
+        captured_output = io.StringIO()   
+        with contextlib.redirect_stdout(captured_output):  
+            self.karil.attack(strong_opponent)  
+  
+        self.assertEqual(strong_opponent.health, initial_opponent_health)  
+        self.assertIn("couldn't damage", captured_output.getvalue())  
+  
+
+
 
 if __name__ == '__main__':  
     unittest.main()
